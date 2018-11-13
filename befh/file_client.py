@@ -45,12 +45,13 @@ class FileClient(DatabaseClient):
             return from_str
 
 
-    def create(self, table, columns, types, is_ifnotexists=True):
+    def create(self, table, columns, types, primary_key_index=[], is_ifnotexists=True):
         """
         Create table in the database
         :param table: Table name
         :param columns: Column array
         :param types: Type array
+		:param primary_key_index: Unused/for comptibility
         :param is_ifnotexists: Create table if not exists keyword
         """
         file_path = os.path.join(self.file_directory, table + ".csv")
