@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: BitcoinExchangeFH
+Version: 0.2.5
+Summary: Cryptocurrency exchange market data feed handler.
+Home-page: http://pypi.python.org/pypi/BitcoinExchangeFH/
+Author: Gavin Chan
+Author-email: gavincyi@gmail.com
+License: LICENSE.txt
+Description-Content-Type: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
