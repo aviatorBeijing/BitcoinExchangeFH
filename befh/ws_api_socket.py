@@ -84,7 +84,16 @@ class WebSocketApiClient(ApiSocket):
 
     def __on_message(self, ws, m):
         if self._received_data_compressed is True:
-            data = zlib.decompress(m, wbits=-zlib.MAX_WBITS).decode('UTF-8')
+            try:
+                data = zlib.decompress(m, wbits=-zlib.MAX_WBITS).decode('UTF-8')
+            except Exception as e1:
+                try:
+                    data = zlib.decompress(m, wbits=zlib.MAX_WBITS|16).decode('UTF-8')
+                except Exception as e2:
+                    try: 
+                        data = zlib.decompress(m, wbits=zlib.MAX_WBITS).decode('UTF-8')
+                    except Exception as e3:
+                        raise e3
             """
             zlib can decompress all those formats:
                 to (de-)compress deflate format, use wbits = -zlib.MAX_WBITS
