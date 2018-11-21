@@ -102,8 +102,9 @@ class ExchGwApiOkexWs(WebSocketApiClient):
             #Convert local time as to UTC.
             date_time = datetime(today.year, today.month, today.day,
                                  *list(map(lambda x: int(x), time.split(':'))),
-                                 tzinfo = get_localzone()
+                                 tzinfo=pytz.timezone('Asia/Shanghai')
             )
+            #trade.date_time = date_time.astimezone(pytz.utc).strftime('%Y%m%d %H:%M:%S.%f')
             trade.date_time = date_time.astimezone(pytz.utc).strftime('%Y%m%d %H:%M:%S.%f')
             # Trade side
             # Buy = 0
