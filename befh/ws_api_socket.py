@@ -10,7 +10,7 @@ class WebSocketApiClient(ApiSocket):
     """
     Generic REST API call
     """
-    def __init__(self, id, received_data_compressed=True):
+    def __init__(self, id, received_data_compressed=False):
         """
         Constructor
         :param id: Socket id
