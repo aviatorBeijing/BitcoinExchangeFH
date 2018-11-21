@@ -25,7 +25,7 @@ class ExchGwApiOkexWs(WebSocketApiClient):
         """
         Constructor
         """
-        WebSocketApiClient.__init__(self, 'ExchApiHuoBi')
+        WebSocketApiClient.__init__(self, 'ExchApiOkex')
 
     @classmethod
     def get_bids_field_name(cls):
@@ -37,15 +37,18 @@ class ExchGwApiOkexWs(WebSocketApiClient):
 
     @classmethod
     def get_link(cls):
-        return 'wss://real.okex.com:10440/websocket/okexapi'
+        return 'wss://real.okex.com:10441/websocket?compress=true'
 
     @classmethod
     def get_order_book_subscription_string(cls, instmt):
-        return json.dumps({'event':'addChannel','channel':'ok_sub_futureusd_{}_depth_this_week'.format(instmt.instmt_code)})
+        return json.dumps({'event':'addChannel',
+                           'channel':'ok_sub_futureusd_{}_depth_this_week'.format(instmt.instmt_code)})
 
     @classmethod
     def get_trades_subscription_string(cls, instmt):
-        return json.dumps({'event':'addChannel','channel':'ok_sub_futureusd_{}_trade_this_week'.format(instmt.instmt_code)})
+        return json.dumps({'event':'addChannel',
+                           'binary':'1',
+                           'channel':'ok_sub_futureusd_{}_trade_this_week'.format(instmt.instmt_code)})
 
     @classmethod
     def parse_l2_depth(cls, instmt, raw):

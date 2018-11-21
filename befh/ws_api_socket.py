@@ -4,13 +4,13 @@ import websocket
 import threading
 import json
 import time
-import zlib
+import zlib,sys
 
 class WebSocketApiClient(ApiSocket):
     """
     Generic REST API call
     """
-    def __init__(self, id, received_data_compressed=False):
+    def __init__(self, id, received_data_compressed=True):
         """
         Constructor
         :param id: Socket id
@@ -84,7 +84,15 @@ class WebSocketApiClient(ApiSocket):
 
     def __on_message(self, ws, m):
         if self._received_data_compressed is True:
-            data = zlib.decompress(m, zlib.MAX_WBITS|16).decode('UTF-8')
+            data = zlib.decompress(m, wbits=-zlib.MAX_WBITS).decode('UTF-8')
+            """
+            zlib can decompress all those formats:
+                to (de-)compress deflate format, use wbits = -zlib.MAX_WBITS
+                to (de-)compress zlib format, use wbits = zlib.MAX_WBITS
+                to (de-)compress gzip format, use wbits = zlib.MAX_WBITS | 16
+                
+            https://stackoverflow.com/questions/3122145/zlib-error-error-3-while-decompressing-incorrect-header-check
+            """
             m = json.loads(data)
         else:
             m = json.loads(m)
