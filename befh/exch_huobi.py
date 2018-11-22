@@ -10,6 +10,7 @@ import json
 from functools import partial
 from datetime import datetime
 
+DEBUG=False
 
 class ExchGwApiHuoBiWs(WebSocketApiClient):
     """
@@ -59,7 +60,11 @@ class ExchGwApiHuoBiWs(WebSocketApiClient):
     @classmethod
     def get_link(cls):
         return 'wss://api.huobipro.com/ws'
-
+    
+    @classmethod
+    def get_contract_link(cls):
+        return 'wss://www.hbdm.com/ws'
+    
     @classmethod
     def get_order_book_subscription_string(cls, instmt):
         return json.dumps({"sub": "market.{}.depth.step2".format(instmt.instmt_code), "id": "id{}".format(cls.Client_Id)})
@@ -207,13 +212,15 @@ class ExchGwHuoBi(ExchangeGateway):
                     if trade.trade_id != instmt.get_exch_trade_id():
                         instmt.incr_trade_id()
                         instmt.set_exch_trade_id(trade.trade_id)
-                        self.insert_trade(instmt, trade)
+                        if not DEBUG:
+                            self.insert_trade(instmt, trade)
             elif 'depth.step' in message['ch']:
                 instmt.set_prev_l2_depth(instmt.get_l2_depth().copy())
                 self.api_socket.parse_l2_depth(instmt, message['tick'])
                 if instmt.get_l2_depth().is_diff(instmt.get_prev_l2_depth()):
                     instmt.incr_order_book_id()
-                    self.insert_order_book(instmt)
+                    if not DEBUG:
+                        self.insert_order_book(instmt)
             else:
                 Logger.error(self.__class__.__name__, 'Not Trade or Market')
 
@@ -228,7 +235,9 @@ class ExchGwHuoBi(ExchangeGateway):
         instmt.set_instmt_snapshot_table_name(self.get_instmt_snapshot_table_name(instmt.get_exchange_name(),
                                                                                   instmt.get_instmt_name()))
         self.init_instmt_snapshot_table(instmt)
-        return [self.api_socket.connect(self.api_socket.get_link(),
+        return [self.api_socket.connect(self.api_socket.get_contract_link() 
+                                        if 'BTC_' in instmt.get_instmt_name() 
+                                        else self.api_socket.get_link(),
                                         on_message_handler=partial(self.on_message_handler, instmt),
                                         on_open_handler=partial(self.on_open_handler, instmt),
                                         on_close_handler=partial(self.on_close_handler, instmt))]
@@ -240,8 +249,8 @@ if __name__ == '__main__':
     logging.basicConfig()
     Logger.init_log()
     exchange_name = 'HuoBi'
-    instmt_name = 'BTCUSDT'
-    instmt_code = 'btcusdt'
+    instmt_name = 'BTC_CW'
+    instmt_code = 'BTC_CW'
     instmt = Instrument(exchange_name, instmt_name, instmt_code)
     db_client = SqlClientTemplate()
     exch = ExchGwHuoBi([db_client])
