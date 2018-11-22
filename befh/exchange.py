@@ -121,7 +121,7 @@ class ExchangeGateway:
         
         # Update the snapshot
         if instmt.get_l2_depth() is not None:
-            id = self.get_instmt_snapshot_id(instmt)
+            xid = self.get_instmt_snapshot_id(instmt)
             for db_client in self.db_clients:
                 if self.is_allowed_snapshot(db_client):
                     db_client.insert(table=self.get_snapshot_table_name(),
@@ -140,7 +140,7 @@ class ExchangeGateway:
                     db_client.insert(table=instmt.get_instmt_snapshot_table_name(),
                                           columns=['id'] + Snapshot.columns(False),
                                           types=['int'] + Snapshot.types(False),
-                                          values=[id] +
+                                          values=[xid] +
                                                   Snapshot.values('',
                                                                  '',
                                                                  instmt.get_l2_depth(),
@@ -170,9 +170,8 @@ class ExchangeGateway:
         instmt.set_last_trade(trade)
 
         # Update the snapshot
-        if instmt.get_l2_depth() is not None and \
-           instmt.get_last_trade() is not None:
-            id = self.get_instmt_snapshot_id(instmt)
+        if instmt.get_l2_depth() is not None and instmt.get_last_trade() is not None:
+            xid = self.get_instmt_snapshot_id(instmt)
             for db_client in self.db_clients:
                 is_allowed_snapshot = self.is_allowed_snapshot(db_client)
                 is_allowed_instmt_record = self.is_allowed_instmt_record(db_client)
@@ -193,7 +192,7 @@ class ExchangeGateway:
                     db_client.insert(table=instmt.get_instmt_snapshot_table_name(),
                                      columns=['id'] + Snapshot.columns(False),
                                      types=['int'] + Snapshot.types(False),
-                                     values=[id] +
+                                     values=[xid] +
                                             Snapshot.values('',
                                                          '',
                                                          instmt.get_l2_depth(),
