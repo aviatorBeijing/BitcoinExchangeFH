@@ -11,6 +11,8 @@ import json
 from functools import partial
 from datetime import datetime
 
+DEBUG = False
+
 class ExchGwApiGdaxOrderBook(RESTfulApiSocket):
     """
     Exchange gateway RESTfulApi
@@ -28,7 +30,8 @@ class ExchGwApiGdaxOrderBook(RESTfulApiSocket):
         
     @classmethod
     def get_order_book_link(cls, instmt):
-        return "https://api.gdax.com/products/%s/book?level=2" % instmt.get_instmt_code()
+        #return "https://api.gdax.com/products/%s/book?level=2" % instmt.get_instmt_code()
+        return "https://api.pro.coinbase.com/products/%s/book?level=2" % instmt.get_instmt_code()
                 
     @classmethod
     def parse_l2_depth(cls, instmt, raw):
@@ -131,8 +134,9 @@ class ExchGwApiGdaxTrades(WebSocketApiClient):
         
     @classmethod
     def get_link(cls):
-        return 'wss://ws-feed.gdax.com'
-        
+        #return 'wss://ws-feed.gdax.com'
+        return 'wss://ws-feed.pro.coinbase.com'
+    
     @classmethod
     def get_trades_subscription_string(cls, instmt):
         return json.dumps({"type":"subscribe", "product_id": instmt.get_instmt_code()})
@@ -234,6 +238,7 @@ class ExchGwGdax(ExchangeGateway):
         :param instmt: Instrument
         :param message: Message
         """
+        print( message )
         keys = message.keys()
         if 'type' in keys and 'product_id' in keys:
             if message['type'] == "match":
@@ -243,7 +248,8 @@ class ExchGwGdax(ExchangeGateway):
                     if trade.trade_id != instmt.get_exch_trade_id():
                         instmt.incr_trade_id()
                         instmt.set_exch_trade_id(trade.trade_id)
-                        self.insert_trade(instmt, trade)     
+                        if not DEBUG:
+                            self.insert_trade(instmt, trade)     
             else:
                 # Never handler order book query here
                 pass
@@ -260,7 +266,8 @@ class ExchGwGdax(ExchangeGateway):
                     instmt.set_prev_l2_depth(instmt.get_l2_depth())
                     instmt.set_l2_depth(l2_depth)
                     instmt.incr_order_book_id()
-                    self.insert_order_book(instmt)
+                    if not DEBUG:
+                        self.insert_order_book(instmt)
             except Exception as e:
                 Logger.error(self.__class__.__name__, "Error in order book: %s" % e)
             time.sleep(1)
