@@ -10,7 +10,7 @@ import json
 from functools import partial
 from datetime import datetime
 
-DEBUG=False
+DEBUG=True
 
 class ExchGwApiHuoBiWs(WebSocketApiClient):
     """
@@ -71,8 +71,8 @@ class ExchGwApiHuoBiWs(WebSocketApiClient):
 
     @classmethod
     def get_trades_subscription_string(cls, instmt):
-        return json.dumps({"sub": "market.{}.trade.detail".format(instmt.instmt_code), "id": "id{}".format(cls.Client_Id)})
-
+        return json.dumps({"req": "market.{}.trade.detail".format(instmt.instmt_code), "id": "id{}".format(cls.Client_Id)})
+    
     @classmethod
     def parse_l2_depth(cls, instmt, raw):
         """
@@ -249,8 +249,8 @@ if __name__ == '__main__':
     logging.basicConfig()
     Logger.init_log()
     exchange_name = 'HuoBi'
-    instmt_name = 'BTC_CW'
-    instmt_code = 'BTC_CW'
+    instmt_name = 'BTC_NW'
+    instmt_code = 'BTC_NW'
     instmt = Instrument(exchange_name, instmt_name, instmt_code)
     db_client = SqlClientTemplate()
     exch = ExchGwHuoBi([db_client])
