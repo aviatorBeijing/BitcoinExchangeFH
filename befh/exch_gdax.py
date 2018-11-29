@@ -238,7 +238,6 @@ class ExchGwGdax(ExchangeGateway):
         :param instmt: Instrument
         :param message: Message
         """
-        print( message )
         keys = message.keys()
         if 'type' in keys and 'product_id' in keys:
             if message['type'] == "match":
