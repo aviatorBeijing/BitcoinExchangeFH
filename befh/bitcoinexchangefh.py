@@ -27,6 +27,7 @@ from befh.exch_bitflyer import ExchGwBitflyer
 from befh.exch_coinone import ExchGwCoinOne
 from befh.kdbplus_client import KdbPlusClient
 from befh.mysql_client import MysqlClient
+from befh.pg_client import PgClient
 from befh.sqlite_client import SqliteClient
 from befh.file_client import FileClient
 from befh.zmq_client import ZmqClient
@@ -48,6 +49,13 @@ def main():
                         default='')
     parser.add_argument('-mysqlschema', action='store', dest='mysqlschema',
                         help='MySQL schema.',
+                        default='')
+    parser.add_argument('-pg', action='store_true', help='Use Postgres')
+    parser.add_argument('-pgdest', action='store', dest='pgdest',
+                        help='Postgres destination. Formatted as <name:pwd@host:port>',
+                        default='')
+    parser.add_argument('-pgschema', action='store', dest='pgschema',
+                        help='Postgres schema.',
                         default='')
     parser.add_argument('-kdbdest', action='store', dest='kdbdest',
                         help='Kdb+ destination. Formatted as <host:port>',
@@ -84,6 +92,18 @@ def main():
                           user=logon_credential.split(':')[0],
                           pwd=logon_credential.split(':')[1],
                           schema=args.mysqlschema)
+        db_clients.append(db_client)
+        is_database_defined = True
+    if args.pg:
+        db_client = PgClient()
+        pgdest = args.pgdest
+        logon_credential = pgdest.split('@')[0]
+        connection = pgdest.split('@')[1]
+        db_client.connect(host=connection.split(':')[0],
+                          port=int(connection.split(':')[1]),
+                          user=logon_credential.split(':')[0],
+                          pwd=logon_credential.split(':')[1],
+                          schema=args.pgschema)
         db_clients.append(db_client)
         is_database_defined = True
     if args.csv:
